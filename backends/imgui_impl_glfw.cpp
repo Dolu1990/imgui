@@ -826,34 +826,61 @@ static void ImGui_ImplGlfw_UpdateGamepads()
     #undef MAP_ANALOG
 }
 
-void ImGui_ImplGlfw_NewFrame()
+#include <TracyVulkan.hpp>
+void ImGui_ImplGlfw_NewFrame(int w, int h)
 {
+    ZoneScoped;
     ImGuiIO& io = ImGui::GetIO();
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     IM_ASSERT(bd != nullptr && "Context or backend not initialized! Did you call ImGui_ImplGlfw_InitForXXX()?");
 
     // Setup display size (every frame to accommodate for window resizing)
-    int w, h;
-    int display_w, display_h;
-    glfwGetWindowSize(bd->Window, &w, &h);
-    glfwGetFramebufferSize(bd->Window, &display_w, &display_h);
-    io.DisplaySize = ImVec2((float)w, (float)h);
-    if (w > 0 && h > 0)
-        io.DisplayFramebufferScale = ImVec2((float)display_w / (float)w, (float)display_h / (float)h);
+    {
+        ZoneScopedN("setup");
+        io.DisplaySize = ImVec2((float)w, (float)h);
+        io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
+        // int w, h;
+        // int display_w, display_h;
+        // {
+        //     ZoneScopedN("glfwGetWindowSize");
+        //     glfwGetWindowSize(bd->Window, &w, &h);
+        // }
+        // {
+        //     ZoneScopedN("glfwGetFramebufferSize");
+        //     glfwGetFramebufferSize(bd->Window, &display_w, &display_h);
+        // }
+        // io.DisplaySize = ImVec2((float)w, (float)h);
+        // if (w > 0 && h > 0)
+        //     io.DisplayFramebufferScale = ImVec2((float)display_w / (float)w, (float)display_h / (float)h);
+    }
 
     // Setup time step
     // (Accept glfwGetTime() not returning a monotonically increasing value. Seems to happens on disconnecting peripherals and probably on VMs and Emscripten, see #6491, #6189, #6114, #3644)
-    double current_time = glfwGetTime();
+    double current_time;
+    {
+        ZoneScopedN("glfwGetTime");
+        current_time = glfwGetTime();
+    }
     if (current_time <= bd->Time)
         current_time = bd->Time + 0.00001f;
     io.DeltaTime = bd->Time > 0.0 ? (float)(current_time - bd->Time) : (float)(1.0f / 60.0f);
     bd->Time = current_time;
 
-    ImGui_ImplGlfw_UpdateMouseData();
-    ImGui_ImplGlfw_UpdateMouseCursor();
+    {
+        ZoneScopedN("ImGui_ImplGlfw_UpdateMouseData");
+        ImGui_ImplGlfw_UpdateMouseData();
+    }
+    {
+        ZoneScopedN("ImGui_ImplGlfw_UpdateMouseCursor");
+        ImGui_ImplGlfw_UpdateMouseCursor();
+    }
 
-    // Update game controllers (if enabled and available)
-    ImGui_ImplGlfw_UpdateGamepads();
+    {
+        // Update game controllers (if enabled and available)
+        ZoneScopedN("ImGui_ImplGlfw_UpdateGamepads");
+        ImGui_ImplGlfw_UpdateGamepads();
+    }
 }
 
 // GLFW doesn't provide a portable sleep function
