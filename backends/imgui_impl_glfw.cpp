@@ -826,6 +826,7 @@ static void ImGui_ImplGlfw_UpdateGamepads()
     #undef MAP_ANALOG
 }
 
+#include <vulkan/vulkan.h>
 #include <TracyVulkan.hpp>
 void ImGui_ImplGlfw_NewFrame(int w, int h)
 {
