@@ -827,7 +827,7 @@ static void ImGui_ImplGlfw_UpdateGamepads()
 }
 
 #include <vulkan/vulkan.h>
-#include <TracyVulkan.hpp>
+#include <tracy/Tracy.hpp>
 void ImGui_ImplGlfw_NewFrame(int w, int h)
 {
     ZoneScoped;
